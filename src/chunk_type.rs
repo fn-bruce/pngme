@@ -31,7 +31,7 @@ impl TryFrom<[u8; 4]> for ChunkType {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct ChunkType {
+pub struct ChunkType {
     bytes: [u8; 4]
 }
 
