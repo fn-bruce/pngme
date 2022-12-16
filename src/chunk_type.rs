@@ -1,5 +1,35 @@
 use std::str::FromStr;
 
+#[derive(Debug)]
+pub enum ChunkTypeDecodingError {
+    BadByte(u8),
+    BadLength(usize)
+}
+
+impl std::fmt::Display for ChunkTypeDecodingError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ChunkTypeDecodingError::BadByte(b) => write!(f, "Bad byte: {}", b),
+            ChunkTypeDecodingError::BadLength(l) => write!(f, "Bad length: {}", l)
+        }
+    }
+}
+
+impl std::error::Error for ChunkTypeDecodingError {}
+
+impl TryFrom<[u8; 4]> for ChunkType {
+    type Error = crate::Error;
+
+    fn try_from(bytes: [u8; 4]) -> Result<Self, Self::Error> {
+        for byte in bytes.iter() {
+            if !byte.is_ascii_alphabetic() {
+                return Err(Box::new(ChunkTypeDecodingError::BadByte(*byte)));
+            }
+        }
+        Ok(ChunkType { bytes })
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 struct ChunkType {
     bytes: [u8; 4]
@@ -43,36 +73,6 @@ impl ChunkType {
 impl std::fmt::Display for ChunkType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self.bytes)
-    }
-}
-
-#[derive(Debug)]
-pub enum ChunkTypeDecodingError {
-    BadByte(u8),
-    BadLength(usize)
-}
-
-impl std::fmt::Display for ChunkTypeDecodingError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ChunkTypeDecodingError::BadByte(b) => write!(f, "Bad byte: {}", b),
-            ChunkTypeDecodingError::BadLength(l) => write!(f, "Bad length: {}", l)
-        }
-    }
-}
-
-impl std::error::Error for ChunkTypeDecodingError {}
-
-impl TryFrom<[u8; 4]> for ChunkType {
-    type Error = crate::Error;
-
-    fn try_from(bytes: [u8; 4]) -> Result<Self, Self::Error> {
-        for byte in bytes.iter() {
-            if !byte.is_ascii_alphabetic() {
-                return Err(Box::new(ChunkTypeDecodingError::BadByte(*byte)));
-            }
-        }
-        Ok(ChunkType { bytes })
     }
 }
 
