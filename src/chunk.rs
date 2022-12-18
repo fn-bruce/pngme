@@ -3,6 +3,8 @@ use std::fmt::Display;
 use crc::{Crc, CRC_32_ISO_HDLC};
 
 use crate::chunk_type::ChunkType;
+use crate::Result;
+use crate::Error;
 
 #[derive(Debug)]
 pub enum ChunkEncodingError {
@@ -21,6 +23,7 @@ impl Display for ChunkEncodingError {
 
 impl std::error::Error for ChunkEncodingError {}
 
+#[derive(Debug)]
 pub struct Chunk {
     length: u32,
     chunk_type: ChunkType,
@@ -56,22 +59,29 @@ impl Chunk {
     pub fn data_as_string(&self) -> crate::Result<String> {
         Ok(String::from_utf8_lossy(&self.chunk_data).to_string())
     }
+
+    pub fn as_bytes(&self) -> Vec<u8> {
+        self.length
+            .to_be_bytes()
+            .iter()
+            .chain(&self.chunk_type.bytes())
+            .chain(self.chunk_data.iter())
+            .chain(self.crc.to_be_bytes().iter())
+            .copied()
+            .collect()
+    }
 }
 
 impl Display for Chunk {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "Chunk {{ length: {}, chunk_type: {}, chunk_data: {:?}, crc: {} }}",
-            self.length, self.chunk_type, self.chunk_data, self.crc
-        )
+        write!( f, "{:?}", self)
     }
 }
 
 impl TryFrom<&[u8]> for Chunk {
-    type Error = crate::Error;
+    type Error = Error;
 
-    fn try_from(chunk_data: &[u8]) -> crate::Result<Self> {
+    fn try_from(chunk_data: &[u8]) -> Result<Self> {
         let length_bytes: [u8; 4] = chunk_data[..4].try_into().unwrap();
         let chunk_type_bytes: [u8; 4] = chunk_data[4..8].try_into().unwrap();
         let crc_bytes: [u8; 4] = chunk_data[chunk_data.len() - 4..].try_into().unwrap();
