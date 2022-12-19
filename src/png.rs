@@ -1,8 +1,7 @@
 use std::fmt::Display;
 
+use crate::{Result, Error};
 use crate::chunk::Chunk;
-use crate::Result;
-use crate::Error;
 use crate::chunk_type::ChunkType;
 
 #[derive(Debug)]
@@ -13,7 +12,7 @@ pub enum PngParsingError {
 impl Display for PngParsingError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            PngParsingError::InvalidHeader(h) => write!(f, "Bad header: {:?}", self)
+            PngParsingError::InvalidHeader(h) => write!(f, "Bad header: {:?}", h)
         }
     }
 }
@@ -34,7 +33,7 @@ impl Display for PngEncodingError {
 }
 
 #[derive(Debug)]
-struct Png {
+pub struct Png {
     chunks: Vec<Chunk>
 }
 
@@ -43,7 +42,7 @@ impl std::error::Error for PngEncodingError { }
 #[allow(dead_code)]
 impl Png {
     // 137 80 78 71 13 10 26 10
-    const STANDARD_HEADER: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
+    pub const STANDARD_HEADER: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
 
     pub fn from_chunks(chunks: Vec<Chunk>) -> Png {
         Png { chunks }
@@ -155,11 +154,8 @@ mod tests {
     }
 
     fn chunk_from_strings(chunk_type: &str, data: &str) -> Result<Chunk> {
-        use std::str::FromStr;
-
         let chunk_type = ChunkType::from_str(chunk_type)?;
         let data: Vec<u8> = data.bytes().collect();
-
         Ok(Chunk::new(chunk_type, data))
     }
 
