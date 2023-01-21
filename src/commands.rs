@@ -1,14 +1,13 @@
 use std::convert::TryFrom;
 use std::fs::{self, OpenOptions};
 use std::io::{Read, Write};
-use std::path::PathBuf;
 use std::str::FromStr;
 
 use crate::args::{DecodeArgs, EncodeArgs, PrintArgs, RemoveArgs};
 use crate::chunk::Chunk;
 use crate::chunk_type::ChunkType;
 use crate::png::Png;
-use crate::{Error, Result};
+use crate::Result;
 
 pub fn encode(args: EncodeArgs) -> Result<()> {
     let path_buf = args.path.unwrap();
@@ -27,7 +26,7 @@ pub fn encode(args: EncodeArgs) -> Result<()> {
             png.append_chunk(chunk);
             let file_bytes = png.as_bytes();
             let mut file = OpenOptions::new().write(true).open(path_str)?;
-            file.write_all(&file_bytes);
+            file.write_all(&file_bytes).unwrap();
         }
     }
 
@@ -42,7 +41,6 @@ pub fn decode(args: DecodeArgs) -> Result<()> {
 
     let file_bytes = file.bytes().map(|b| b.unwrap()).collect::<Vec<u8>>();
     let png = Png::try_from(file_bytes.as_slice())?;
-    let chunk = png.chunk_by_type(&chunk_type.to_string()).unwrap();
 
     match png.chunk_by_type(&chunk_type.to_string()) {
         Some(c) => {
@@ -75,7 +73,7 @@ pub fn remove(args: RemoveArgs) -> Result<()> {
 pub fn print_chunks(args: PrintArgs) -> Result<()> {
     let file = fs::File::open(args.path.unwrap()).unwrap();
     let file_bytes = file.bytes().map(|b| b.unwrap()).collect::<Vec<u8>>();
-    let mut png = Png::try_from(file_bytes.as_slice())?;
+    let png = Png::try_from(file_bytes.as_slice())?;
     let chunks = png.chunks();
     for chunk in chunks {
         println!(

@@ -1,5 +1,4 @@
-use std::io::Read;
-use args::{PngMeArgs, PrintArgs};
+use args::PngMeArgs;
 use clap::Parser;
 
 mod args;

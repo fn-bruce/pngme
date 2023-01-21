@@ -2,7 +2,6 @@ use std::fmt::Display;
 
 use crate::{Result, Error};
 use crate::chunk::Chunk;
-use crate::chunk_type::ChunkType;
 
 #[derive(Debug)]
 pub enum PngParsingError {
