@@ -3,11 +3,12 @@ use std::fs::{self, OpenOptions};
 use std::io::{Read, Write};
 use std::str::FromStr;
 
-use crate::args::{DecodeArgs, EncodeArgs, PrintArgs, RemoveArgs};
+use crate::Result;
+use crate::args::{DecodeArgs, DownloadArgs, EncodeArgs, PrintArgs, RemoveArgs};
 use crate::chunk::Chunk;
 use crate::chunk_type::ChunkType;
 use crate::png::Png;
-use crate::Result;
+use crate::download::Download;
 
 pub fn encode(args: EncodeArgs) -> Result<()> {
     let path_buf = args.path.unwrap();
@@ -82,5 +83,13 @@ pub fn print_chunks(args: PrintArgs) -> Result<()> {
             chunk.data_as_string().unwrap()
         );
     }
+    Ok(())
+}
+
+async fn download_file(args: DownloadArgs) -> Result<()> {
+    let url = args.url.unwrap();
+    let file_name = args.file_name.unwrap();
+    let download = Download::new(&url)?;
+    download.download(&file_name).await?;
     Ok(())
 }

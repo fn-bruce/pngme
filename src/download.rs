@@ -36,7 +36,7 @@ impl FromStr for Download {
 }
 
 impl Download {
-    fn new(url: &str) -> Result<Self, Error> {
+    pub fn new(url: &str) -> Result<Self, Error> {
         let re = Regex::new(r"https?://")?;
         if re.is_match(url) {
             Ok(Download(url.to_string()))
@@ -45,7 +45,7 @@ impl Download {
         }
     }
 
-    async fn download(&self, filename: &str) -> Result<(), Error> {
+    pub async fn download(&self, filename: &str) -> Result<(), Error> {
         let response = reqwest::get(&self.0).await?;
         if response.status().is_success() {
             let bytes = response.bytes().await?;
