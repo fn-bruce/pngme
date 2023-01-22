@@ -1,7 +1,6 @@
 use std::fmt::Display;
 
 use crc::{Crc, CRC_32_ISO_HDLC};
-
 use crate::chunk_type::ChunkType;
 use crate::Result;
 use crate::Error;
