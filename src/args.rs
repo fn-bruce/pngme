@@ -32,3 +32,9 @@ pub struct RemoveArgs {
 pub struct PrintArgs {
     pub path: Option<PathBuf>,
 }
+
+#[derive(Args, Debug)]
+pub struct DownloadArgs {
+    pub url: Option<String>,
+    pub file_name: Option<String>,
+}
