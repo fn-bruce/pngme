@@ -33,7 +33,6 @@ impl Url {
     }
 }
 
-// create tests
 #[cfg(test)]
 mod tests {
     use super::*;
